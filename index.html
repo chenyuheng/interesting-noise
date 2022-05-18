@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Interesting Noise</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+        <script>
+            function Vector(x, y) {
+                this.x = x;
+                this.y = y;
+            }
+
+            Vector.prototype.length = function() {
+                return Math.sqrt(this.x * this.x + this.y * this.y);
+            }
+
+            Vector.prototype.normalize = function() {
+                this.x /= this.length();
+                this.y /= this.length();
+            }
+
+            Vector.prototype.dot = function(v2) {
+                return this.x * v2.x + this.y * v2.y;
+            }
+
+            function getRandomInt(max) {
+                return Math.floor(Math.random() * max);
+            }
+
+            function random_black_white(x, y) {
+                let n = getRandomInt(2) * 255;
+                return [n, n, n, 1];
+            }
+
+            function random_gray(x, y) {
+                let n = getRandomInt(255);
+                return [n, n, n, 1];
+            }
+
+            function random_color(x, y) {
+                return [getRandomInt(255), getRandomInt(255), getRandomInt(255), 1];
+            }
+
+            const const_random = [
+                [-151,-160,137,91,1],
+                [90,15,131,-13,-11],
+                [201,-95,12,-53,-122],
+                [194,-233,7,225,99],
+                [68,175,74,165,71]
+            ];
+
+            function get_vec(X, Y) {
+                return new Vector(const_random[X][Y], const_random[Y][X]);
+            }
+
+            function continuous_rgba(x, y) {
+                let X = Math.floor(x / 64);
+                let Y = Math.floor(y / 64);
+                x %= 64;
+                y %= 64;
+                let const_vecs = [];
+                const_vecs.push(get_vec(X, Y));
+                const_vecs.push(get_vec(X + 1, Y));
+                const_vecs.push(get_vec(X, Y + 1));
+                const_vecs.push(get_vec(X + 1, Y + 1));
+                for (let i = 0; i < const_vecs.length; i++) {
+                    const_vecs[i].normalize();
+                }
+                let vari_vecs = [];
+                vari_vecs.push(new Vector(0 - x, 0 - y));
+                vari_vecs.push(new Vector(64 - x, 0 - y));
+                vari_vecs.push(new Vector(0 - x, 64 - y));
+                vari_vecs.push(new Vector(64 - x, 64 - y));
+                for (let i = 0; i < vari_vecs.length; i++) {
+                    vari_vecs[i].normalize();
+                }
+                let rgba = [];
+                for (let i = 0; i < 4; i++) {
+                    let n = vari_vecs[i].dot(const_vecs[i]);
+                    n = (n + 1) * 256 / 2 ;
+                    rgba.push(n);
+                }
+                return rgba;
+            }
+
+            function continuous_black_white(x, y) {
+                let color = continuous_rgba(x, y);
+                let mix = (color[0] +  color[1] +  color[2] +  color[3]) / 4;
+                color[0] = mix > 128 ? 255 : 0;
+                color[1] = color[0];
+                color[2] = color[0];
+                color[3] = 1;
+                return color;
+            }
+
+            function continuous_gray(x, y) {
+                let color = continuous_rgba(x, y);
+                let mix = (color[0] +  color[1] +  color[2] +  color[3]) / 4;
+                color[0] = mix;
+                color[1] = mix;
+                color[2] = mix;
+                color[3] = 1;
+                return color;
+            }
+
+            function continuous_color(x, y) {
+                let color = continuous_rgba(x, y);
+                color[3] = 1;
+                return color;
+            }
+
+            function draw(canvas_id, render) {
+                let canvas = document.getElementById(canvas_id);
+                canvas.width = 256;
+                canvas.height = 256;
+                let ctx = canvas.getContext("2d");
+                for (let x = 0; x < 256; x++) {
+                    for (let y = 0; y < 256; y++) {
+                        let color = render(x, y);
+                        ctx.fillStyle = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", " + color[3] + ")";
+                        ctx.fillRect(x, y, x, y);
+                    }
+                }
+            }
+
+            function init() {
+                draw("random-black-white", random_black_white);
+                draw("random-gray", random_gray);
+                draw("random-color", random_color);
+                draw("continuous-black-white", continuous_black_white);
+                draw("continuous-gray", continuous_gray);
+                draw("continuous-color", continuous_color);
+            }
+        </script>
+    </head>
+    <body onload="init();">
+        <h1>Interesting Noise</h1>
+        <h3>Random noise</h3>
+        <canvas id="random-black-white"></canvas>
+        <canvas id="random-gray"></canvas>
+        <canvas id="random-color"></canvas>
+        <h3>Continuous noise</h3>
+        <canvas id="continuous-black-white"></canvas>
+        <canvas id="continuous-gray"></canvas>
+        <canvas id="continuous-color"></canvas>
+
+    </body>
+</html>
