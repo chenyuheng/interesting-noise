@@ -12,6 +12,9 @@ function draw(canvas_id, render) {
     }
 }
 
+let P1 = MakePermutation();
+let P2 = MakePermutation();
+let P3 = MakePermutation();
 function init() {
     draw("random-black-white", random_black_white);
     draw("random-gray", random_gray);
@@ -19,4 +22,8 @@ function init() {
     draw("continuous-black-white", continuous_black_white);
     draw("continuous-gray", continuous_gray);
     draw("continuous-color", continuous_color);
+    draw("p1", p1);
+    draw("p2", p2);
+    draw("p3", p3);
+    draw("cloudy_sky", cloudy_sky);
 }
