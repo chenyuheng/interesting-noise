@@ -200,17 +200,78 @@ function p3(x, y) {
     return [r, g, b, 1];
 }
 
-function cloudy_sky(x, y) {
-    let skyblue = [135, 206, 235, 1];
-    let threashould = 128;
-    let g = p(x, y, P1);
-    if (g < threashould) {
-        return skyblue;
+function gradient_color(colors, g) {
+    if (g < 0 || g > 255) {
+        console.error("g out of range: " + g);
+        return 0;
     }
-    let fw = (g - threashould)/(255-threashould);
-    let fb = 1 - fw;
-    return [skyblue[0] * fb + 255 * fw,
-        skyblue[1] * fb + 255 * fw,
-        skyblue[2] * fb + 255 * fw,
-        1];
+    g = g / 2.55;
+    g = Math.round(g);
+    gradient_list = [];
+    for (i in colors) {
+        if (i < 0 || i > 100) {
+            console.error("gradient out of range: " + i);
+            return 0;
+        }
+        gradient_list.push(i);
+    }
+    for (i = 0; i < gradient_list.length - 1; i++) {
+        if (g >= gradient_list[i] && g <= gradient_list[i+1]) {
+            let begin_gradient = gradient_list[i];
+            let end_gradient = gradient_list[i+1];
+            let begin_color = colors[begin_gradient];
+            let end_color = colors[end_gradient];
+            let end_fraction = (g - begin_gradient) / (end_gradient - begin_gradient);
+            let begin_fraction = 1 - end_fraction;
+            return [
+                begin_color[0]*begin_fraction + end_color[0]*end_fraction,
+                begin_color[1]*begin_fraction + end_color[1]*end_fraction,
+                begin_color[2]*begin_fraction + end_color[2]*end_fraction,
+                begin_color[3]*begin_fraction + end_color[3]*end_fraction,
+            ];
+        }
+    }
+    console.error("generate gradient color fail")
+    return 0;
+}
+
+
+let cloudy_sky_colors = {
+    0: [135, 206, 235, 1],
+    50: [135, 206, 235, 1],
+    100: [255, 255, 255, 1]
+}
+
+function cloudy_sky(x, y) {
+    let g = p(x, y, P1);
+    return gradient_color(cloudy_sky_colors, g);
+}
+
+
+let earth_colors = {
+    0: [50, 90, 147, 1],
+    40: [67, 127, 187, 1],
+    50: [151, 214, 241, 1],
+    51: [12, 116, 53, 1],
+    70: [229, 208, 120, 1],
+    89: [105, 81, 69, 1],
+    90: [220, 219, 218, 1],
+    100: [255, 255, 255, 1]
+}
+
+function earth(x, y) {
+    let g = p(x, y, P1);
+    return gradient_color(earth_colors, g);
+}
+
+
+let magma_colors = {
+    0: [178, 21, 0, 1],
+    50: [237, 122, 0, 1],
+    100: [232, 243, 207, 1]
+}
+
+function magma(x, y) {
+    let g = p(x, y, P1);
+    return gradient_color(magma_colors, g);
 }

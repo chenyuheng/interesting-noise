@@ -26,4 +26,6 @@ function init() {
     draw("p2", p2);
     draw("p3", p3);
     draw("cloudy_sky", cloudy_sky);
+    draw("earth", earth);
+    draw("magma", magma);
 }
